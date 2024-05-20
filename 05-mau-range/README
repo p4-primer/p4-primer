@@ -1,0 +1,29 @@
+sudo ip link del veth0
+sudo ip link del veth2
+sudo ip link del veth4
+sudo ip link add veth0 type veth peer name veth1
+sudo ip link add veth2 type veth peer name veth3
+sudo ip link set veth0 up
+sudo ip link set veth1 up
+sudo ip link set veth2 up
+sudo ip link set veth3 up
+
+p4c-bm2-ss range.p4 -o range.json --p4runtime-files range.p4.p4info.txt
+
+sudo simple_switch_grpc range.json --log-console -i 1@veth0 -i 2@veth2
+
+#acl_tbl
+table_add MyIngress.acl_tbl MyIngress.allow 2.2.2.0&&&255.255.255.0 8001->8999 => 0
+table_add MyIngress.acl_tbl MyIngress.allow 3.3.3.0&&&255.255.255.0 8001->8999 => 1
+table_add MyIngress.acl_tbl MyIngress.deny  2.2.2.0&&&255.255.255.0 0->65535 => 2
+table_add MyIngress.acl_tbl MyIngress.deny  3.3.3.0&&&255.255.255.0 0->65535 => 3
+
+
+sudo tcpdump -i veth3 -nn -XXX
+
+sudo ./send_packet_1.1.1.2_to_2.2.2.2_8001_allow.py
+sudo ./send_packet_1.1.1.2_to_3.3.3.3_80_deny.py
+sudo ./send_packet_4.4.4.2_to_2.2.2.2_80_deny.py
+sudo ./send_packet_1.1.1.2_to_2.2.2.3_80_deny.py
+sudo ./send_packet_1.1.1.2_to_3.3.3.3_8599_allow.py
+sudo ./send_packet_5.5.5.2_to_3.3.3.3_443_deny.py

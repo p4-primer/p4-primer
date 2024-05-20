@@ -1,0 +1,22 @@
+sudo ip link del veth0
+sudo ip link del veth2
+sudo ip link del veth4
+sudo ip link add veth0 type veth peer name veth1
+sudo ip link add veth2 type veth peer name veth3
+sudo ip link set veth0 up
+sudo ip link set veth1 up
+sudo ip link set veth2 up
+sudo ip link set veth3 up
+
+p4c-bm2-ss deparser.p4 -o deparser.json --p4runtime-files deparser.p4.p4info.txt
+
+sudo simple_switch_grpc deparser.json --log-console -i 1@veth0 -i 2@veth2
+
+#vxlan_tbl
+table_add MyIngress.vxlan_tbl MyIngress.add_tunnel_header 1 192.168.1.11 => 10:22:33:44:55:66 10:22:33:44:55:67 10.10.10.10 10.10.10.11 10000
+
+
+sudo tcpdump -i veth3 -nn -XXX
+
+sudo ./send_packet_add_tunnel.py
+sudo ./send_packet_not_add_tunnel.py

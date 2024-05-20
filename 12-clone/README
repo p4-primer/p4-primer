@@ -1,0 +1,31 @@
+sudo ip link del veth0
+sudo ip link del veth2
+sudo ip link del veth4
+sudo ip link del veth6
+sudo ip link add veth0 type veth peer name veth1
+sudo ip link add veth2 type veth peer name veth3
+sudo ip link add veth4 type veth peer name veth5
+sudo ip link add veth6 type veth peer name veth7
+sudo ip link set veth0 up
+sudo ip link set veth1 up
+sudo ip link set veth2 up
+sudo ip link set veth3 up
+sudo ip link set veth4 up
+sudo ip link set veth5 up
+sudo ip link set veth6 up
+sudo ip link set veth7 up
+
+p4c-bm2-ss clone.p4 -o clone.json --p4runtime-files clone.p4.p4info.txt
+
+sudo simple_switch_grpc clone.json --log-console -i 1@veth0 -i 2@veth2 -i 3@veth4 -i 4@veth6
+
+# config mirror session
+# mirroring_add session_id port_id
+mirroring_add 100 3
+mirroring_add 200 4
+
+sudo tcpdump -i veth3 -nn -vvv
+sudo tcpdump -i veth5 -nn -vvv
+sudo tcpdump -i veth7 -nn -vvv
+
+sudo ./send_packet_udp_ttl_64.py

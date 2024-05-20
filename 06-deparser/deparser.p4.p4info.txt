@@ -1,0 +1,71 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 34115343
+    name: "MyIngress.vxlan_tbl"
+    alias: "vxlan_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "standard_metadata.ingress_port"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  match_fields {
+    id: 2
+    name: "hdr.inner_ipv4.dst_addr"
+    bitwidth: 32
+    match_type: EXACT
+  }
+  action_refs {
+    id: 21239689
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 1024
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 21239689
+    name: "MyIngress.add_tunnel_header"
+    alias: "add_tunnel_header"
+  }
+  params {
+    id: 1
+    name: "mac_src_addr"
+    bitwidth: 48
+  }
+  params {
+    id: 2
+    name: "mac_dst_addr"
+    bitwidth: 48
+  }
+  params {
+    id: 3
+    name: "tunnel_src_addr"
+    bitwidth: 32
+  }
+  params {
+    id: 4
+    name: "tunnel_dst_addr"
+    bitwidth: 32
+  }
+  params {
+    id: 5
+    name: "vni"
+    bitwidth: 24
+  }
+}
+type_info {
+}

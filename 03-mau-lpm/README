@@ -1,0 +1,37 @@
+sudo ip link del veth0
+sudo ip link del veth2
+sudo ip link del veth4
+sudo ip link add veth0 type veth peer name veth1
+sudo ip link add veth2 type veth peer name veth3
+sudo ip link add veth4 type veth peer name veth5
+sudo ip link set veth0 up
+sudo ip link set veth1 up
+sudo ip link set veth2 up
+sudo ip link set veth3 up
+sudo ip link set veth4 up
+sudo ip link set veth5 up
+
+p4c-bm2-ss lpm.p4 -o lpm.json --p4runtime-files lpm.p4.p4info.txt
+
+sudo simple_switch_grpc lpm.json --log-console -i 1@veth0 -i 2@veth2 -i 3@veth4
+
+
+#l3_fwd
+table_add MyIngress.l3_fwd_tbl MyIngress.set_next_hop 2.2.2.0/24 => 192.168.1.2
+table_add MyIngress.l3_fwd_tbl MyIngress.set_next_hop 3.3.3.0/24 => 192.168.1.2
+table_add MyIngress.l3_fwd_tbl MyIngress.set_next_hop 0.0.0.0/0  => 192.168.2.2
+
+#arp_tbl
+table_add MyIngress.arp_tbl MyIngress.set_next_hop_mac 192.168.1.2 => 10:22:33:44:56:66
+table_add MyIngress.arp_tbl MyIngress.set_next_hop_mac 192.168.2.2 => 10:22:33:44:56:67
+
+#l2_fwd
+table_add MyIngress.l2_fwd_tbl MyIngress.set_egress_port 10:22:33:44:56:66 => 2
+table_add MyIngress.l2_fwd_tbl MyIngress.set_egress_port 10:22:33:44:56:67 => 3
+
+sudo tcpdump -i veth3 -nn -XXX
+sudo tcpdump -i veth5 -nn -XXX
+
+sudo ./send_packet_tcp.py
+sudo ./send_packet_udp.py
+sudo ./send_packet_default_route.py

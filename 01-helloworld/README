@@ -1,0 +1,21 @@
+sudo ip link del veth0
+sudo ip link del veth2
+sudo ip link add veth0 type veth peer name veth1
+sudo ip link add veth2 type veth peer name veth3
+sudo ip link set veth0 up
+sudo ip link set veth1 up
+sudo ip link set veth2 up
+sudo ip link set veth3 up
+
+p4c-bm2-ss helloworld.p4 -o helloworld.json --p4runtime-files helloworld.p4.p4info.txt
+
+sudo simple_switch_grpc helloworld.json --log-console -i 1@veth0 -i 2@veth2
+
+simple_switch_CLI
+table_dump MyIngress.mac_match_tbl
+table_add MyIngress.mac_match_tbl MyIngress.set_dst_addr 0x112233445566 =>
+
+sudo tcpdump -i veth3 -nn -XXX
+
+sudo ./send_packet.py
+

@@ -1,0 +1,29 @@
+sudo ip link del veth0
+sudo ip link del veth2
+sudo ip link del veth4
+sudo ip link del veth6
+sudo ip link add veth0 type veth peer name veth1
+sudo ip link add veth2 type veth peer name veth3
+sudo ip link add veth4 type veth peer name veth5
+sudo ip link add veth6 type veth peer name veth7
+sudo ip link set veth0 up
+sudo ip link set veth1 up
+sudo ip link set veth2 up
+sudo ip link set veth3 up
+sudo ip link set veth4 up
+sudo ip link set veth5 up
+sudo ip link set veth6 up
+sudo ip link set veth7 up
+
+p4c-bm2-ss cpu.p4 -o cpu.json --p4runtime-files cpu.p4.p4info.txt
+
+sudo simple_switch_grpc --no-p4 --log-console -i 1@veth0 -i 2@veth2 -i 3@veth4 -i 255@veth6
+
+# start P4Runtime client
+sudo python3 ./p4runtime_client.py
+
+sudo tcpdump -i veth5 -nn -vvv
+
+sudo ./send_packet_udp_port1_to_port2.py
+sudo ./send_packet_udp_port2_to_port1.py
+

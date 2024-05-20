@@ -1,0 +1,41 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 48306754
+    name: "MyIngress.mac_match_tbl"
+    alias: "mac_match_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.eth.dstAddr"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 23228320
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 1024
+  is_const_table: true
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 23228320
+    name: "MyIngress.set_dst_addr"
+    alias: "set_dst_addr"
+  }
+}
+type_info {
+}

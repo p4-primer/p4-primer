@@ -1,0 +1,139 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 35374813
+    name: "MyIngress.ingress_port_counter_tbl"
+    alias: "ingress_port_counter_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "standard_metadata.ingress_port"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  action_refs {
+    id: 21257015
+  }
+  direct_resource_ids: 335508716
+  size: 256
+}
+tables {
+  preamble {
+    id: 39954848
+    name: "MyIngress.tcp_counter_tbl"
+    alias: "tcp_counter_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "meta.l4_protocol"
+    bitwidth: 8
+    match_type: EXACT
+  }
+  action_refs {
+    id: 22930652
+  }
+  action_refs {
+    id: 25652968
+  }
+  direct_resource_ids: 326881885
+  size: 256
+}
+tables {
+  preamble {
+    id: 38125742
+    name: "MyEgress.egress_port_counter_tbl"
+    alias: "egress_port_counter_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "standard_metadata.egress_spec"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  action_refs {
+    id: 21716804
+  }
+  size: 256
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 25652968
+    name: "MyIngress.drop"
+    alias: "drop"
+  }
+}
+actions {
+  preamble {
+    id: 22930652
+    name: "MyIngress.fwd_tcp"
+    alias: "fwd_tcp"
+  }
+}
+actions {
+  preamble {
+    id: 21716804
+    name: "MyEgress.counter_action"
+    alias: "counter_action"
+  }
+  params {
+    id: 1
+    name: "port_id"
+    bitwidth: 9
+  }
+}
+counters {
+  preamble {
+    id: 313729746
+    name: "MyIngress.udp_counter"
+    alias: "udp_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  size: 1
+}
+counters {
+  preamble {
+    id: 315825519
+    name: "MyEgress.egress_counter"
+    alias: "egress_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  size: 256
+}
+direct_counters {
+  preamble {
+    id: 335508716
+    name: "MyIngress.port_counter"
+    alias: "port_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 35374813
+}
+direct_counters {
+  preamble {
+    id: 326881885
+    name: "MyIngress.tcp_counter"
+    alias: "tcp_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 39954848
+}
+type_info {
+}

@@ -1,0 +1,41 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 40442603
+    name: "MyEgress.egress_port_tbl"
+    alias: "egress_port_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "standard_metadata.egress_port"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  action_refs {
+    id: 32113813
+  }
+  direct_resource_ids: 364762610
+  size: 256
+}
+actions {
+  preamble {
+    id: 32113813
+    name: "MyEgress.meter_action"
+    alias: "meter_action"
+  }
+}
+direct_meters {
+  preamble {
+    id: 364762610
+    name: "MyEgress.port_meter"
+    alias: "port_meter"
+  }
+  spec {
+    unit: PACKETS
+  }
+  direct_table_id: 40442603
+}
+type_info {
+}

@@ -1,0 +1,1024 @@
+{
+  "header_types" : [
+    {
+      "name" : "scalars_0",
+      "id" : 0,
+      "fields" : []
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "fields" : [
+        ["ingress_port", 9, false],
+        ["egress_spec", 9, false],
+        ["egress_port", 9, false],
+        ["instance_type", 32, false],
+        ["packet_length", 32, false],
+        ["enq_timestamp", 32, false],
+        ["enq_qdepth", 19, false],
+        ["deq_timedelta", 32, false],
+        ["deq_qdepth", 19, false],
+        ["ingress_global_timestamp", 48, false],
+        ["egress_global_timestamp", 48, false],
+        ["mcast_grp", 16, false],
+        ["egress_rid", 16, false],
+        ["checksum_error", 1, false],
+        ["parser_error", 32, false],
+        ["priority", 3, false],
+        ["_padding", 3, false]
+      ]
+    },
+    {
+      "name" : "ethernet_h",
+      "id" : 2,
+      "fields" : [
+        ["dst_addr", 48, false],
+        ["src_addr", 48, false],
+        ["ether_type", 16, false]
+      ]
+    },
+    {
+      "name" : "ipv4_h",
+      "id" : 3,
+      "fields" : [
+        ["version", 4, false],
+        ["ihl", 4, false],
+        ["diffserv", 8, false],
+        ["total_len", 16, false],
+        ["identification", 16, false],
+        ["flags", 3, false],
+        ["frag_offset", 13, false],
+        ["ttl", 8, false],
+        ["protocol", 8, false],
+        ["hdr_checksum", 16, false],
+        ["src_addr", 32, false],
+        ["dst_addr", 32, false]
+      ]
+    },
+    {
+      "name" : "udp_h",
+      "id" : 4,
+      "fields" : [
+        ["src_port", 16, false],
+        ["dst_port", 16, false],
+        ["hdr_length", 16, false],
+        ["checksum", 16, false]
+      ]
+    },
+    {
+      "name" : "vxlan_h",
+      "id" : 5,
+      "fields" : [
+        ["flags", 8, false],
+        ["reserved", 24, false],
+        ["vni", 24, false],
+        ["reserved2", 8, false]
+      ]
+    }
+  ],
+  "headers" : [
+    {
+      "name" : "scalars",
+      "id" : 0,
+      "header_type" : "scalars_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "header_type" : "standard_metadata",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "outer_eth",
+      "id" : 2,
+      "header_type" : "ethernet_h",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "outer_ipv4",
+      "id" : 3,
+      "header_type" : "ipv4_h",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "outer_udp",
+      "id" : 4,
+      "header_type" : "udp_h",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "vxlan",
+      "id" : 5,
+      "header_type" : "vxlan_h",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "inner_eth",
+      "id" : 6,
+      "header_type" : "ethernet_h",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "inner_ipv4",
+      "id" : 7,
+      "header_type" : "ipv4_h",
+      "metadata" : false,
+      "pi_omit" : true
+    }
+  ],
+  "header_stacks" : [],
+  "header_union_types" : [],
+  "header_unions" : [],
+  "header_union_stacks" : [],
+  "field_lists" : [],
+  "errors" : [
+    ["NoError", 0],
+    ["PacketTooShort", 1],
+    ["NoMatch", 2],
+    ["StackOutOfBounds", 3],
+    ["HeaderTooShort", 4],
+    ["ParserTimeout", 5],
+    ["ParserInvalidArgument", 6]
+  ],
+  "enums" : [],
+  "parsers" : [
+    {
+      "name" : "parser",
+      "id" : 0,
+      "init_state" : "start",
+      "parse_states" : [
+        {
+          "name" : "start",
+          "id" : 0,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "inner_eth"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x0800",
+              "mask" : null,
+              "next_state" : "parse_ipv4"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["inner_eth", "ether_type"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_ipv4",
+          "id" : 1,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "inner_ipv4"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        }
+      ]
+    }
+  ],
+  "parse_vsets" : [],
+  "deparsers" : [
+    {
+      "name" : "deparser",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "deparser.p4",
+        "line" : 129,
+        "column" : 8,
+        "source_fragment" : "MyDeparser"
+      },
+      "order" : ["outer_eth", "outer_ipv4", "outer_udp", "vxlan", "inner_eth", "inner_ipv4"],
+      "primitives" : []
+    }
+  ],
+  "meter_arrays" : [],
+  "counter_arrays" : [],
+  "register_arrays" : [],
+  "calculations" : [
+    {
+      "name" : "calc",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "deparser.p4",
+        "line" : 110,
+        "column" : 8,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "algo" : "csum16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "version"]
+        },
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "ihl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "diffserv"]
+        },
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "total_len"]
+        },
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "identification"]
+        },
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "flags"]
+        },
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "frag_offset"]
+        },
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "ttl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "protocol"]
+        },
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "src_addr"]
+        },
+        {
+          "type" : "field",
+          "value" : ["outer_ipv4", "dst_addr"]
+        }
+      ]
+    }
+  ],
+  "learn_lists" : [],
+  "actions" : [
+    {
+      "name" : "NoAction",
+      "id" : 0,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "MyIngress.add_tunnel_header",
+      "id" : 1,
+      "runtime_data" : [
+        {
+          "name" : "mac_src_addr",
+          "bitwidth" : 48
+        },
+        {
+          "name" : "mac_dst_addr",
+          "bitwidth" : 48
+        },
+        {
+          "name" : "tunnel_src_addr",
+          "bitwidth" : 32
+        },
+        {
+          "name" : "tunnel_dst_addr",
+          "bitwidth" : 32
+        },
+        {
+          "name" : "vni",
+          "bitwidth" : 24
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "add_header",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "outer_eth"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 42,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_eth.setValid()"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_eth", "src_addr"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 43,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_eth.src_addr = mac_src_addr"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_eth", "dst_addr"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 44,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_eth.dst_addr = mac_dst_addr"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_eth", "ether_type"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0800"
+            }
+          ],
+          "source_info" : {
+            "filename" : "headers.p4",
+            "line" : 9,
+            "column" : 36,
+            "source_fragment" : "16w0x0800; ..."
+          }
+        },
+        {
+          "op" : "add_header",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "outer_ipv4"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 47,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.setValid()"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "src_addr"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 2
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 48,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.src_addr = tunnel_src_addr"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "dst_addr"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 3
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 49,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.dst_addr = tunnel_dst_addr"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "version"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x04"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 50,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.version = 4"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "ihl"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x05"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 51,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.ihl = 5"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "diffserv"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 52,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.diffserv = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "total_len"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "field",
+                        "value" : ["inner_ipv4", "total_len"]
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x0032"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 53,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.total_len = hdr.inner_ipv4.total_len ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "identification"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 58,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.identification = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "flags"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 59,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.flags = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "frag_offset"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 60,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.frag_offset = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "ttl"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x40"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 61,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_ipv4.ttl = 64"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_ipv4", "protocol"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x11"
+            }
+          ],
+          "source_info" : {
+            "filename" : "headers.p4",
+            "line" : 13,
+            "column" : 39,
+            "source_fragment" : "17; ..."
+          }
+        },
+        {
+          "op" : "add_header",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "outer_udp"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 64,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_udp.setValid()"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_udp", "src_port"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x2710"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 65,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_udp.src_port = 10000"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_udp", "dst_port"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x12b5"
+            }
+          ],
+          "source_info" : {
+            "filename" : "headers.p4",
+            "line" : 14,
+            "column" : 31,
+            "source_fragment" : "4789; ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_udp", "hdr_length"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "field",
+                        "value" : ["inner_ipv4", "total_len"]
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x001e"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 67,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_udp.hdr_length = hdr.inner_ipv4.total_len ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["outer_udp", "checksum"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 71,
+            "column" : 8,
+            "source_fragment" : "hdr.outer_udp.checksum = 0"
+          }
+        },
+        {
+          "op" : "add_header",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "vxlan"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 73,
+            "column" : 8,
+            "source_fragment" : "hdr.vxlan.setValid()"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["vxlan", "flags"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x08"
+            }
+          ],
+          "source_info" : {
+            "filename" : "headers.p4",
+            "line" : 15,
+            "column" : 27,
+            "source_fragment" : "0x08; ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["vxlan", "reserved"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 75,
+            "column" : 8,
+            "source_fragment" : "hdr.vxlan.reserved = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["vxlan", "vni"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 4
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 76,
+            "column" : 8,
+            "source_fragment" : "hdr.vxlan.vni = vni"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["vxlan", "reserved2"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 77,
+            "column" : 8,
+            "source_fragment" : "hdr.vxlan.reserved2 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "egress_spec"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0002"
+            }
+          ],
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 79,
+            "column" : 8,
+            "source_fragment" : "standard_metadata.egress_spec = 0x2"
+          }
+        }
+      ]
+    }
+  ],
+  "pipelines" : [
+    {
+      "name" : "ingress",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "deparser.p4",
+        "line" : 32,
+        "column" : 8,
+        "source_fragment" : "MyIngress"
+      },
+      "init_table" : "MyIngress.vxlan_tbl",
+      "tables" : [
+        {
+          "name" : "MyIngress.vxlan_tbl",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "deparser.p4",
+            "line" : 82,
+            "column" : 10,
+            "source_fragment" : "vxlan_tbl"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "hdr.inner_ipv4.dst_addr",
+              "target" : ["inner_ipv4", "dst_addr"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [1, 0],
+          "actions" : ["MyIngress.add_tunnel_header", "NoAction"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "MyIngress.add_tunnel_header" : null,
+            "NoAction" : null
+          },
+          "default_entry" : {
+            "action_id" : 0,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : []
+    },
+    {
+      "name" : "egress",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "deparser.p4",
+        "line" : 100,
+        "column" : 8,
+        "source_fragment" : "MyEgress"
+      },
+      "init_table" : null,
+      "tables" : [],
+      "action_profiles" : [],
+      "conditionals" : []
+    }
+  ],
+  "checksums" : [
+    {
+      "name" : "cksum",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "deparser.p4",
+        "line" : 110,
+        "column" : 8,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "target" : ["outer_ipv4", "hdr_checksum"],
+      "type" : "generic",
+      "calculation" : "calc",
+      "verify" : false,
+      "update" : true,
+      "if_cond" : {
+        "type" : "expression",
+        "value" : {
+          "op" : "d2b",
+          "left" : null,
+          "right" : {
+            "type" : "field",
+            "value" : ["outer_ipv4", "$valid$"]
+          }
+        }
+      }
+    }
+  ],
+  "force_arith" : [],
+  "extern_instances" : [],
+  "field_aliases" : [
+    [
+      "queueing_metadata.enq_timestamp",
+      ["standard_metadata", "enq_timestamp"]
+    ],
+    [
+      "queueing_metadata.enq_qdepth",
+      ["standard_metadata", "enq_qdepth"]
+    ],
+    [
+      "queueing_metadata.deq_timedelta",
+      ["standard_metadata", "deq_timedelta"]
+    ],
+    [
+      "queueing_metadata.deq_qdepth",
+      ["standard_metadata", "deq_qdepth"]
+    ],
+    [
+      "intrinsic_metadata.ingress_global_timestamp",
+      ["standard_metadata", "ingress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.egress_global_timestamp",
+      ["standard_metadata", "egress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.mcast_grp",
+      ["standard_metadata", "mcast_grp"]
+    ],
+    [
+      "intrinsic_metadata.egress_rid",
+      ["standard_metadata", "egress_rid"]
+    ],
+    [
+      "intrinsic_metadata.priority",
+      ["standard_metadata", "priority"]
+    ]
+  ],
+  "program" : "deparser.p4",
+  "__meta__" : {
+    "version" : [2, 23],
+    "compiler" : "https://github.com/p4lang/p4c"
+  }
+}

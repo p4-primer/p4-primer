@@ -1,0 +1,28 @@
+sudo ip netns del ns0
+sudo ip netns del ns1
+sudo ip netns add ns0
+sudo ip netns add ns1
+sudo ip link add veth0 type veth peer name veth1
+sudo ip link add vnic1 type veth peer name vnic1_cpu
+sudo ip link set veth1 netns ns0
+sudo ip link set vnic1 netns ns1
+sudo ip netns exec ns0 ifconfig veth1 1.1.1.2/24 up
+sudo ip netns exec ns1 ifconfig vnic1 1.1.1.1/24 up
+sudo ifconfig veth0 up
+sudo ifconfig vnic1_cpu up
+
+p4c-bm2-ss vnic.p4 -o vnic.json --p4runtime-files vnic.p4.p4info.txt
+
+sudo simple_switch_grpc vnic.json --log-console -i 1@veth0 -i 255@vnic1_cpu
+
+# MyIngress.arp_tbl
+table_add MyIngress.arp_tbl MyIngress.fwd_cpu_action 1.1.1.1 =>
+
+# MyIngress.vnic_tbl
+table_add MyIngress.vnic_tbl MyIngress.fwd_cpu_action 1.1.1.1 =>
+
+
+sudo ip netns exec ns0 ping 1.1.1.1 -I veth1 -c 5
+
+sudo tcpdump -i vnic1_cpu -nn  -p ip or -p arp
+

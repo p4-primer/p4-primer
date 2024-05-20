@@ -1,0 +1,104 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 35361620
+    name: "MyIngress.smac_tbl"
+    alias: "smac_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ethernet.src_addr"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 20186621
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 1024
+}
+tables {
+  preamble {
+    id: 46159014
+    name: "MyIngress.dmac_tbl"
+    alias: "dmac_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ethernet.dst_addr"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 29683729
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 1024
+}
+tables {
+  preamble {
+    id: 43100462
+    name: "MyIngress.broadcast_tbl"
+    alias: "broadcast_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "standard_metadata.ingress_port"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  action_refs {
+    id: 32651418
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 1024
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 20186621
+    name: "MyIngress.mac_learn"
+    alias: "mac_learn"
+  }
+}
+actions {
+  preamble {
+    id: 29683729
+    name: "MyIngress.forward"
+    alias: "forward"
+  }
+  params {
+    id: 1
+    name: "egress_port"
+    bitwidth: 9
+  }
+}
+actions {
+  preamble {
+    id: 32651418
+    name: "MyIngress.set_multicaset_group"
+    alias: "set_multicaset_group"
+  }
+  params {
+    id: 1
+    name: "multicast_group"
+    bitwidth: 16
+  }
+}
+type_info {
+}

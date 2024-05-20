@@ -1,0 +1,64 @@
+sudo ip link del veth0
+sudo ip link del veth2
+sudo ip link del veth4
+sudo ip link del veth6
+sudo ip link add veth0 type veth peer name veth1
+sudo ip link add veth2 type veth peer name veth3
+sudo ip link add veth4 type veth peer name veth5
+sudo ip link add veth6 type veth peer name veth7
+sudo ip link set veth0 up
+sudo ip link set veth1 up
+sudo ip link set veth2 up
+sudo ip link set veth3 up
+sudo ip link set veth4 up
+sudo ip link set veth5 up
+sudo ip link set veth6 up
+sudo ip link set veth7 up
+
+p4c-bm2-ss register.p4 -o register.json --p4runtime-files register.p4.p4info.txt
+
+sudo simple_switch_grpc register.json --log-console -i 1@veth0 -i 2@veth2 -i 3@veth4 -i 4@veth6
+
+# l2_fwd_tbl
+table_add MyIngress.l2_fwd_tbl MyIngress.l2_fwd 1.1.1.2 => 1 aa:bb:cc:dd:ee:01 10:22:33:44:55:66
+table_add MyIngress.l2_fwd_tbl MyIngress.l2_fwd 1.1.2.2 => 2 aa:bb:cc:dd:ee:02 10:22:33:44:55:66
+table_add MyIngress.l2_fwd_tbl MyIngress.l2_fwd 1.1.3.1 => 3 10:22:33:44:55:77 10:22:33:44:55:66
+table_add MyIngress.l2_fwd_tbl MyIngress.l2_fwd 1.1.4.1 => 3 10:22:33:44:55:88 10:22:33:44:55:66
+
+# l3_fwd_tbl
+table_add MyIngress.l3_fwd_tbl MyIngress.set_next_hop 1.1.1.2/32 => 1.1.1.2
+table_add MyIngress.l3_fwd_tbl MyIngress.set_next_hop 1.1.2.2/32 => 1.1.2.2
+table_add MyIngress.l3_fwd_tbl MyIngress.set_next_hop 1.1.3.0/24 => 1.1.3.1
+table_add MyIngress.l3_fwd_tbl MyIngress.set_next_hop 1.1.4.0/24 => 1.1.4.1
+
+# port_acl_tbl
+table_add MyIngress.port_acl_tbl MyIngress.set_direction 1 2 => 0
+table_add MyIngress.port_acl_tbl MyIngress.set_direction 2 1 => 0
+table_add MyIngress.port_acl_tbl MyIngress.set_direction 1 3 => 0
+table_add MyIngress.port_acl_tbl MyIngress.set_direction 1 4 => 0
+table_add MyIngress.port_acl_tbl MyIngress.set_direction 2 3 => 0
+table_add MyIngress.port_acl_tbl MyIngress.set_direction 2 4 => 0
+table_add MyIngress.port_acl_tbl MyIngress.set_direction 3 1 => 1
+table_add MyIngress.port_acl_tbl MyIngress.set_direction 3 2 => 1
+table_add MyIngress.port_acl_tbl MyIngress.set_direction 4 1 => 1
+table_add MyIngress.port_acl_tbl MyIngress.set_direction 4 2 => 1
+
+sudo tcpdump -i veth1 -nn -XXX
+
+# allow
+sudo ./send_packet_port1_to_port2_syn_allow.py
+sudo ./send_packet_port2_to_port1_syn_allow.py
+
+# deny
+sudo ./send_packet_port3_to_port1_syn_deny.py
+sudo ./send_packet_port4_to_port1_syn_deny.py
+sudo ./send_packet_port3_to_port1_synack_deny.py
+sudo ./send_packet_port4_to_port1_synack_deny.py
+
+# stateful allow
+sudo ./send_packet_port1_to_port3_syn_allow.py
+sudo ./send_packet_port3_to_port1_synack_allow.py
+
+# stateful allow
+sudo ./send_packet_port1_to_port4_syn_allow.py
+sudo ./send_packet_port4_to_port1_synack_allow.py

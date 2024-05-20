@@ -1,0 +1,60 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 50157364
+    name: "MyIngress.arp_tbl"
+    alias: "arp_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.arp.dst_ip"
+    bitwidth: 32
+    match_type: EXACT
+  }
+  action_refs {
+    id: 32445973
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 255
+}
+tables {
+  preamble {
+    id: 49009809
+    name: "MyIngress.vnic_tbl"
+    alias: "vnic_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ipv4.dst_addr"
+    bitwidth: 32
+    match_type: EXACT
+  }
+  action_refs {
+    id: 32445973
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 255
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 32445973
+    name: "MyIngress.fwd_cpu_action"
+    alias: "fwd_cpu_action"
+  }
+}
+type_info {
+}

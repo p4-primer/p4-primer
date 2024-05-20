@@ -1,0 +1,100 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 39831880
+    name: "MyIngress.ecmp_route_tbl"
+    alias: "ecmp_route_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ipv4.dst_addr"
+    bitwidth: 32
+    match_type: LPM
+  }
+  action_refs {
+    id: 26191125
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  implementation_id: 299742597
+  size: 1024
+}
+tables {
+  preamble {
+    id: 38939076
+    name: "MyIngress.fwd_tbl"
+    alias: "fwd_tbl"
+  }
+  match_fields {
+    id: 1
+    name: "meta.next_hop"
+    bitwidth: 32
+    match_type: EXACT
+  }
+  action_refs {
+    id: 24144614
+  }
+  action_refs {
+    id: 21257015
+  }
+  size: 1024
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 26191125
+    name: "MyIngress.ecmp_route_select_next_hop"
+    alias: "ecmp_route_select_next_hop"
+  }
+  params {
+    id: 1
+    name: "next_hop"
+    bitwidth: 32
+  }
+}
+actions {
+  preamble {
+    id: 24144614
+    name: "MyIngress.fwd"
+    alias: "fwd"
+  }
+  params {
+    id: 1
+    name: "port_id"
+    bitwidth: 9
+  }
+  params {
+    id: 2
+    name: "dst_addr"
+    bitwidth: 48
+  }
+  params {
+    id: 3
+    name: "src_addr"
+    bitwidth: 48
+  }
+}
+action_profiles {
+  preamble {
+    id: 299742597
+    name: "MyIngress.as"
+    alias: "as"
+  }
+  table_ids: 39831880
+  with_selector: true
+  size: 1024
+}
+type_info {
+}
